@@ -24,5 +24,5 @@ copy-to-server:
 
 docker-build-and-push:
 	docker buildx build --no-cache --platform linux/amd64 -t cr.selcloud.ru/olegnemlii/test-server:v0.0.1 .
-	docker login -u token -p CRgAAAAAVij4ICYGpgAme-SmVbGflbElpzriL7a- cr.selcloud.ru/olegnemlii
+	docker login -u token -p CRgAAAAA8Oos-vaCYL9M9ALnkrRTVKaL3ESyP-PI cr.selcloud.ru/olegnemlii
 	docker push cr.selcloud.ru/olegnemlii/test-server:v0.0.1
