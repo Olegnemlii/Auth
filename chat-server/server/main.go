@@ -36,7 +36,7 @@ func (s *server) DeleteChat(ctx context.Context, req *desc.DeleteChatRequest) (*
 
 	if req.GetId() == 0 {
 		return nil,
-			fmt.Errorf("cannot delete chat with id 0")
+			fmt.Errorf("cannot delete chat with id = 0")
 	}
 
 	return &desc.DeleteChatResponse{
