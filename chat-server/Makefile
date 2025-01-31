@@ -1,13 +1,20 @@
+include .env
 LOCAL_BIN:=$(CURDIR)/bin
 
 install-deps:
 	GOBIN=$(LOCAL_BIN) go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1
 	GOBIN=$(LOCAL_BIN) go install -mod=mod google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
+	GOBIN=$(LOCAL_BIN) go install github.com/pressly/goose/v3/cmd/goose@v3.14.0
+
+get-deps:
+	go get -u google.golang.org/protobuf/cmd/protoc-gen-go
+	go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
+
 
 generate:
-	make generate-chat-server-apimake 
+	make generate-chat-api
 
-generate-chat-server-apimake:
+generate-chat-api:
 	mkdir -p pkg/chat_v1
 	protoc --proto_path api/chat_v1 \
 	--go_out=pkg/chat_v1 --go_opt=paths=source_relative \
@@ -16,13 +23,11 @@ generate-chat-server-apimake:
 	--plugin=protoc-gen-go-grpc=bin/protoc-gen-go-grpc \
 	api/chat_v1/chat.proto
 
-build:
-	GOOS=linux GOARCH=amd64 go build -o service_linux server/main.go
+local-migration-status:
+	$(LOCAL_BIN)/goose -dir ${MIGRATION_DIR} postgres ${PG_DSN} status -v
 
-copy-to-server:
-	scp service_linux root@185.91.54.199:
+local-migration-up:
+	$(LOCAL_BIN)/goose -dir ${MIGRATION_DIR} postgres ${PG_DSN} up -v
 
-docker-build-and-push:
-	docker buildx build --no-cache --platform linux/amd64 -t cr.selcloud.ru/olegnemlii/test-server:v0.0.1 .
-	docker login -u token -p CRgAAAAA8Oos-vaCYL9M9ALnkrRTVKaL3ESyP-PI cr.selcloud.ru/olegnemlii
-	docker push cr.selcloud.ru/olegnemlii/test-server:v0.0.1
+local-migration-down:
+	$(LOCAL_BIN)/goose -dir ${MIGRATION_DIR} postgres ${PG_DSN} down -v
